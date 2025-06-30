@@ -1,0 +1,43 @@
+<pre>
+Site escolhido:  Zoho CRM – Oferece plano gratuito com recursos básicos.
+Descrever como seria o plano de backup do sistema analisado
+Itens obrigatórios no documento:
+Frequência do backup: diário, semanal, em tempo real, etc.
+•	Diário, com execução automática programada fora do horário comercial (ex.: 23h).
+•	Backup incremental diariamente, salvando apenas as alterações.
+•	Backup completo semanal, aos domingos, garantindo uma cópia integral dos dados.
+Forma de backup: automático ou manual?
+•	Automático, utilizando as ferramentas nativas do Zoho CRM e integrações com plataformas externas.
+•	Manual complementar: realizado mensalmente para armazenar uma cópia externa de segurança adicional.
+Ferramenta ou sistema de backup sugerido: exemplos: Google Drive, Dropbox Backup, Veeam, Rclone, etc.
+•	Backup Nativo do Zoho CRM: opção de exportação de dados, incluindo todos os módulos (clientes, leads, contatos, tarefas, etc.).
+•	Google Drive ou Dropbox Backup: armazenamento em nuvem seguro para os arquivos exportados.
+•	Rclone: utilizado para automatizar a sincronização dos arquivos exportados do Zoho para múltiplas nuvens (Google Drive, Dropbox, OneDrive).
+•	Alternativa avançada: uso de ferramentas como Veeam Backup for SaaS ou SpinOne, que oferecem backups contínuos e proteção extra contra perda de dados.
+
+O que será salvo no backup: banco de dados, arquivos, configurações, etc. 
+•	Banco de dados completo do CRM: Leads, Contatos, Oportunidades, Tarefas, Chamadas, Negócios, Notas e Dados personalizados.
+•	Arquivos anexos: documentos, contratos e imagens adicionados aos registros do CRM.
+•	Configurações do sistema: fluxos de automação, templates de e-mail, regras de workflow, campos personalizados e painéis de relatórios.
+•	 Histórico de atividades e registros de auditoria.
+
+
+Plano de restore (recuperação):
+
+Como seria feita a restauração dos dados?
+•	Utilizar a funcionalidade de Importação do Zoho CRM, que permite reinserir os dados exportados nos módulos corretos.
+•	Para arquivos e anexos, restauração via download dos backups armazenados na nuvem e upload manual ou por API no Zoho.
+•	Se utilizar ferramentas como SpinOne ou Veeam, o processo de restauração é simplificado e pode ser feito com poucos cliques, recuperando versões específicas.
+
+Quanto tempo o sistema ficaria indisponível nesse processo?
+•	Baixa indisponibilidade. A restauração parcial (ex.: um módulo ou grupo de registros) pode ser feita em minutos.
+•	Em caso de recuperação total:
+•	De 1 a 3 horas, dependendo do volume de dados e da velocidade da conexão.
+•	Durante o restore, o sistema pode continuar operando, mas alguns dados podem não estar atualizados até a conclusão.
+Como garantir a integridade dos dados restaurados?
+•	Realizar validação pós-restore, comparando:
+•	Quantidade de registros antes e depois.
+•	Conferência dos campos críticos (ID de clientes, status, datas, etc.).
+•	Executar testes nos fluxos de automação e relatórios para garantir que estão operacionais.
+•	Manter um registro dos logs de backup e restore, identificando erros e inconsistências.
+O plano garante alta disponibilidade, segurança dos dados e rápida recuperação em caso de falha. Recomendamos uma revisão trimestral deste plano, com testes periódicos de recuperação para garantir sua eficácia.
