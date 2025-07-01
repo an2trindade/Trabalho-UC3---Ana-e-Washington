@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ping Pong Clássico</title>
+  <style>
+    canvas {
+      background: black;
+      display: block;
+      margin: 0 auto;
+      border: 3px solid white;
+    }
+    #mensagemPonto {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: yellow;
+      font-size: 60px;
+      font-weight: bold;
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 20px 40px;
+      border: 3px solid yellow;
+      border-radius: 10px;
+      z-index: 1000;
+      user-select: none;
+      pointer-events: none;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="600" height="400"></canvas>
+  <div id="mensagemPonto">PONTO!</div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const mensagemPonto = document.getElementById('mensagemPonto');
+
+    // Configurações dos elementos
+    const paddleWidth = 10, paddleHeight = 100;
+    const ballSize = 10;
+    const paddleSpeed = 7;
+    const aiSpeed = 4;
+    let ballSpeedX = 5;
+    let ballSpeedY = 4;
+
+    // Posições iniciais
+    let playerY = canvas.height / 2 - paddleHeight / 2;
+    let aiY = canvas.height / 2 - paddleHeight / 2;
+    let ballX = canvas.width / 2;
+    let ballY = canvas.height / 2;
+
+    let playerScore = 0;
+    let aiScore = 0;
+
+    // Controle do teclado para movimento contínuo
+    const keys = {
+      ArrowUp: false,
+      ArrowDown: false
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        keys[e.key] = true;
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        keys[e.key] = false;
+      }
+    });
+
+    function drawRect(x, y, w, h, color) {
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, w, h);
+    }
+
+    function drawCircle(x, y, r, color) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawText(text, x, y) {
+      ctx.fillStyle = 'white';
+      ctx.font = '20px Arial';
+      ctx.fillText(text, x, y);
+    }
+
+    function mostrarMensagemPonto() {
+      mensagemPonto.style.display = 'block';
+      setTimeout(() => {
+        mensagemPonto.style.display = 'none';
+      }, 1000);
+    }
+
+    function resetBall() {
+      ballX = canvas.width / 2;
+      ballY = canvas.height / 2;
+
+      // Define direção aleatória da bola
+      ballSpeedX = (Math.random() > 0.5 ? 1 : -1) * 5;
+
+      // Velocidade Y aleatória entre -4 e 4, sem zero
+      ballSpeedY = (Math.random() * 4 + 1) * (Math.random() > 0.5 ? 1 : -1);
+    }
+
+    function updatePlayerPaddle() {
+      if (keys.ArrowUp) {
+        playerY -= paddleSpeed;
+      }
+      if (keys.ArrowDown) {
+        playerY += paddleSpeed;
+      }
+      // Limita dentro da tela
+      if (playerY < 0) playerY = 0;
+      if (playerY + paddleHeight > canvas.height) playerY = canvas.height - paddleHeight;
+    }
+
+    function updateAI() {
+      // Central da raquete da IA
+      const aiCenter = aiY + paddleHeight / 2;
+
+      // Movimento simples com limite de velocidade
+      if (aiCenter < ballY - 10) {
+        aiY += aiSpeed;
+      } else if (aiCenter > ballY + 10) {
+        aiY -= aiSpeed;
+      }
+
+      // Limitar dentro da tela
+      if (aiY < 0) aiY = 0;
+      if (aiY + paddleHeight > canvas.height) aiY = canvas.height - paddleHeight;
+    }
+
+    function checkCollisions() {
+      // Colisão com topo e base da tela
+      if (ballY - ballSize <= 0 || ballY + ballSize >= canvas.height) {
+        ballSpeedY *= -1;
+      }
+
+      // Colisão com paddle do jogador
+      if (
+        ballX - ballSize <= paddleWidth &&
+        ballY >= playerY &&
+        ballY <= playerY + paddleHeight
+      ) {
+        ballSpeedX *= -1;
+
+        // Ajusta velocidade Y baseada no local do impacto
+        let deltaY = ballY - (playerY + paddleHeight / 2);
+        ballSpeedY = deltaY * 0.25; // Ajuste para controle da bola
+      }
+
+      // Colisão com paddle da IA
+      if (
+        ballX + ballSize >= canvas.width - paddleWidth &&
+        ballY >= aiY &&
+        ballY <= aiY + paddleHeight
+      ) {
+        ballSpeedX *= -1;
+
+        // Ajusta velocidade Y baseada no local do impacto
+        let deltaY = ballY - (aiY + paddleHeight / 2);
+        ballSpeedY = deltaY * 0.25;
+      }
+    }
+
+    function checkScore() {
+      if (ballX < 0) {
+        aiScore++;
+        resetBall();
+      } else if (ballX > canvas.width) {
+        playerScore++;
+        resetBall();
+        mostrarMensagemPonto();
+
+        // Aumenta velocidade da bola para dificultar progressivamente
+        if (ballSpeedX > 0) ballSpeedX += 0.5;
+        else ballSpeedX -= 0.5;
+      }
+    }
+
+    function update() {
+      updatePlayerPaddle();
+      updateAI();
+
+      ballX += ballSpeedX;
+      ballY += ballSpeedY;
+
+      checkCollisions();
+      checkScore();
+    }
+
+    function render() {
+      drawRect(0, 0, canvas.width, canvas.height, 'black');
+      drawRect(0, playerY, paddleWidth, paddleHeight, 'white');
+      drawRect(canvas.width - paddleWidth, aiY, paddleWidth, paddleHeight, 'white');
+      drawCircle(ballX, ballY, ballSize, 'white');
+      drawText(`Jogador: ${playerScore}`, 20, 30);
+      drawText(`Computador: ${aiScore}`, canvas.width - 160, 30);
+    }
+
+    function gameLoop() {
+      update();
+      render();
+      requestAnimationFrame(gameLoop);
+    }
+
+    resetBall();
+    gameLoop();
+  </script>
+</body>
+</html>
